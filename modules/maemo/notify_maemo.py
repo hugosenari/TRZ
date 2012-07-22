@@ -5,14 +5,17 @@ Created on May 15, 2012
 '''
 import os, dbus
 from plugnplay import Plugin
-from pig.core.interfaces import module, notifiable, runnable, loggable
+from dtc.core.interfaces.module import Module
+from dtc.core.interfaces.notifiable import Notifiable
+from dtc.core.interfaces.runnable import Runnable
+from dtc.core.interfaces.loggable import Loggable
 import gsmdecode
 
 DBUS_SESSION_MAEMO_ADDRESS = "DBUS_SESSION_MAEMO_ADDRESS"
 DBUS_SYSTEM_MAEMO_ADDRESS = "DBUS_SYSTEM_MAEMO_ADDRESS"
 
 class NotifyMaemo(Plugin):
-    implements = [module.Module, runnable.Runnable]
+    implements = [Module, Runnable]
     
     def __init__(self, *arg, **vargs):
         self.running = False
@@ -62,25 +65,25 @@ class NotifyMaemo(Plugin):
         return self.running
     
     def run(self, *args, **vargs):
-        loggable.Loggable.info("Run notify_maemo", "Your NotifyMaemo plugin are running")
+        Loggable.info("Run notify_maemo", "Your NotifyMaemo plugin are running")
         self.running = True
         if (self.maemo_ses_bus_addr):
             try:
                 self.maemo_ses_bus = dbus.bus.BusConnection(self.maemo_ses_bus_addr)
                 self.connet_to_ses_signals()
             except:
-                loggable.Loggable.warn("No CON", "Can't connet to bus address: %s" % DBUS_SESSION_MAEMO_ADDRESS)
+                Loggable.warn("No CON", "Can't connect to bus address: %s" % DBUS_SESSION_MAEMO_ADDRESS)
         else:
-            loggable.Loggable.warn("No ENV", "No env value for %s" % DBUS_SESSION_MAEMO_ADDRESS)
+            Loggable.warn("No ENV", "No env value for %s" % DBUS_SESSION_MAEMO_ADDRESS)
             
         if (self.maemo_sys_bus_addr):
             try:
                 self.maemo_sys_bus = dbus.bus.BusConnection(self.maemo_sys_bus_addr)
                 self.connet_to_sys_signals()
             except:
-                loggable.Loggable.warn("No CON", "Can't connet to bus address: %s" % DBUS_SESSION_MAEMO_ADDRESS)
+                Loggable.warn("No CON", "Can't connect to bus address: %s" % DBUS_SESSION_MAEMO_ADDRESS)
         else:
-            loggable.Loggable.warn("No ENV", "No env value for %s" % DBUS_SYSTEM_MAEMO_ADDRESS)        
+            Loggable.warn("No ENV", "No env value for %s" % DBUS_SYSTEM_MAEMO_ADDRESS)        
         
     def connet_to_ses_signals(self):
         pass
@@ -88,8 +91,8 @@ class NotifyMaemo(Plugin):
     def connet_to_sys_signals(self):
         def handle_message(msgpdu, from_number, msg_hash, to_number, *args, **argsv):
             pdu = gsmdecode.decode_pdu(msgpdu)
-            notifiable.Notifiable.info("SMS: %s" % (from_number,), pdu.get('user_data', ''))
-            loggable.Loggable.info("SMS: %s" % (from_number,), pdu.get('user_data', ''))
+            Notifiable.info("SMS: %s" % (from_number,), pdu.get('user_data', ''))
+            Loggable.info("SMS: %s" % (from_number,), pdu.get('user_data', ''))
         
         #receive new sms
         self.maemo_sys_bus\
@@ -101,7 +104,7 @@ class NotifyMaemo(Plugin):
             
         def handle_call(objPath, number, *args, **argsv):
             print args, argsv
-            notifiable.Notifiable.info("", "")
+            Notifiable.info("", "")
 
         #receive new call
         self.maemo_sys_bus\
@@ -110,3 +113,4 @@ class NotifyMaemo(Plugin):
                                  path='/com/nokia/csd/call',
                                  dbus_interface='com.nokia.csd.Call',
                                  signal_name='Coming')
+
