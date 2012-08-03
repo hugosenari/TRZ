@@ -94,9 +94,10 @@ class NotifyMaemo(Plugin):
 
     def connet_to_sys_signals(self):
         def handle_message(msgpdu, from_number, msg_hash, to_number, *args, **argsv):
+            Loggable.debug("MSGPU: ", msgpdu)
             pdu = gsmdecode.decode_pdu(msgpdu)
-            Notifiable.info("SMS: %s" % (from_number,), pdu.get('user_data', ''))
-            Loggable.info("SMS: %s" % (from_number,), pdu.get('user_data', ''))
+            Notifiable.info("SMS: %s" % (pdu.get('sender'),), pdu.get('user_data', ''))
+            Loggable.info("SMS: %s" % (pdu.get('sender'),), pdu.get('user_data', ''))
 
         #receive new sms
         self.maemo_sys_bus\
@@ -118,3 +119,4 @@ class NotifyMaemo(Plugin):
                                  dbus_interface='com.nokia.csd.Call',
                                  signal_name='Coming')
 
+        Notifiable.info("Maemo Notify", "Wainting for new messages")
